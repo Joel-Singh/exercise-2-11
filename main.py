@@ -17,12 +17,12 @@ def getSingleListOfAverages(listContainingListsOfAverages: list[list[float]]):
     return singleListOfAverages
 
 for i in range(NUMBER_OF_RUNS):
-    singleRun = run(useIncrementalEstimateCalculation=True)
+    singleRun = run(useIncrementalEstimateCalculation=True, chanceToSelectRandomly=0.1)
     allAverageRewardsIncremental.append(singleRun['averageRewards'])
     print(str(round(((i + 1) / (NUMBER_OF_RUNS * 2)) * 100, 2)) + "%")
 
 for i in range(NUMBER_OF_RUNS):
-    singleRun = run(useIncrementalEstimateCalculation=False)
+    singleRun = run(useIncrementalEstimateCalculation=False, chanceToSelectRandomly=0.1)
     allAverageRewardsWeighted.append(singleRun['averageRewards'])
     print(str(round(((i + 1 + NUMBER_OF_RUNS) / (NUMBER_OF_RUNS * 2)) * 100, 2)) + "%")
 

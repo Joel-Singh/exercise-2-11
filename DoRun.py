@@ -6,8 +6,7 @@ class Run(TypedDict):
     percentageOfOptimalLeverChosen: list[float]
     averageRewards: list[float]
 
-def run(useIncrementalEstimateCalculation: bool) -> Run:
-    CHANCE_TO_SELECT_RANDOMLY: Final = 0.1
+def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float) -> Run:
     STEP_SIZE_PARAMETER: Final = 0.1
 
     NUMBER_OF_ITERATIONS: Final = 10000
@@ -88,7 +87,7 @@ def run(useIncrementalEstimateCalculation: bool) -> Run:
 
     for i in range(NUMBER_OF_ITERATIONS):
         def chooseLever():
-            if (random.random() < CHANCE_TO_SELECT_RANDOMLY):
+            if (random.random() < chanceToSelectRandomly):
                 return chooseLeverRandomly()
             else:
                 return chooseLeverGreedily()
