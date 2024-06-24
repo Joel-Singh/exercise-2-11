@@ -109,8 +109,6 @@ def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float) 
             if (i == 10**6):
                 averageRewardOverTheLast100000Steps = reward
             else:
-                # print("i is " + str(i))
-                # print("(i - 10**6) + 1 is " + str((i - 10**6) + 1))
                 averageRewardOverTheLast100000Steps = calculateNewAverageIncrementally(averageRewardOverTheLast100000Steps, reward, (i - 10**6) + 1)
                 
 
