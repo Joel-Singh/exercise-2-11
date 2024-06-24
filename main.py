@@ -21,21 +21,9 @@ for i in range(NUMBER_OF_RUNS):
     allAverageRewardsIncremental.append(singleRun['averageRewards'])
     print(str(round(((i + 1) / (NUMBER_OF_RUNS * 2)) * 100, 2)) + "%")
 
-for i in range(NUMBER_OF_RUNS):
-    singleRun = run(useIncrementalEstimateCalculation=False, chanceToSelectRandomly=0.1)
-    allAverageRewardsWeighted.append(singleRun['averageRewards'])
-    print(str(round(((i + 1 + NUMBER_OF_RUNS) / (NUMBER_OF_RUNS * 2)) * 100, 2)) + "%")
+plt.plot(getSingleListOfAverages(allAverageRewardsIncremental), 'r')
 
-line, = plt.plot(getSingleListOfAverages(allAverageRewardsIncremental), 'r')
-line.set_label('Incremental')
-
-line, = plt.plot(getSingleListOfAverages(allAverageRewardsWeighted), 'b')
-line.set_label('Weighted')
-
-plt.ylabel("Average reward over " + str(NUMBER_OF_RUNS) + " runs")
-plt.xlabel("Step")
-plt.legend()
-
-plt.suptitle("Incremental vs Weighted Estimate Calculations On Nonstationary Bandit Problem")
+plt.ylabel("Average reward over the last 100,000 steps")
+plt.xlabel("Parameters (Epsilon, alpha, c, optimistic estimate)")
 
 plt.show()
