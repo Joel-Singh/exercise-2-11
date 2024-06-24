@@ -9,7 +9,7 @@ class Run(TypedDict):
 def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float) -> Run:
     STEP_SIZE_PARAMETER: Final = 0.1
 
-    NUMBER_OF_ITERATIONS: Final = 10000
+    NUMBER_OF_STEPS: Final = 10000
 
     ARE_LEVERS_WALKING: Final = True
 
@@ -85,7 +85,7 @@ def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float) 
     optimalLever = getOptimalLever(levers)
     percentageOfOptimalLeverChosen: list[float] = []
 
-    for i in range(NUMBER_OF_ITERATIONS):
+    for i in range(NUMBER_OF_STEPS):
         def chooseLever():
             if (random.random() < chanceToSelectRandomly):
                 return chooseLeverRandomly()
