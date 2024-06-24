@@ -2,10 +2,6 @@ from typing import Final
 from DoRun import run
 import matplotlib.pyplot as plt
 
-NUMBER_OF_RUNS: Final = 10
-allAverageRewardsIncremental: list[list[float]] = []
-allAverageRewardsWeighted: list[list[float]] = []
-
 def getSingleListOfAverages(listContainingListsOfAverages: list[list[float]]):
     singleListOfAverages: list[float] = []
     for i in range(len(listContainingListsOfAverages[0])):
