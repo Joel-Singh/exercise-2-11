@@ -9,7 +9,7 @@ class Run(TypedDict):
 def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float) -> Run:
     STEP_SIZE_PARAMETER: Final = 0.1
 
-    NUMBER_OF_STEPS: Final = 10000
+    NUMBER_OF_STEPS: Final = 200000
 
     ARE_LEVERS_WALKING: Final = True
 
