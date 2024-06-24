@@ -2,7 +2,7 @@ from typing import Final
 from DoRun import run
 import matplotlib.pyplot as plt
 
-NUMBER_OF_RUNS: Final = 2000
+NUMBER_OF_RUNS: Final = 10
 allAverageRewardsIncremental: list[list[float]] = []
 allAverageRewardsWeighted: list[list[float]] = []
 
