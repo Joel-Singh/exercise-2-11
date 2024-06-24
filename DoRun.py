@@ -4,7 +4,7 @@ import random
 
 class Run(TypedDict):
     percentageOfOptimalLeverChosen: list[float]
-    averageRewards: list[float]
+    averageRewardOverTheLast100000Steps: float
 
 def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float) -> Run:
     STEP_SIZE_PARAMETER: Final = 0.1
@@ -80,7 +80,7 @@ def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float) 
         createLever(),
     ]
 
-    averageRewards: list[float] = []
+    averageRewardOverTheLast100000Steps: float = 0
 
     optimalLever = getOptimalLever(levers)
     percentageOfOptimalLeverChosen: list[float] = []
@@ -101,14 +101,18 @@ def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float) 
                 else:
                     lever['estimate'] = calculateNewAverageWithStepSizeParameter(lever['estimate'], reward, STEP_SIZE_PARAMETER)
 
-        def updateAverageRewards(reward):
-            nonlocal averageRewards
-            if (i == 0):
-                averageRewards.append(reward)
+        def updateAverageRewardOverTheLast100000Steps(reward):
+            nonlocal averageRewardOverTheLast100000Steps
+            if (i < 10**6):
+                return
+
+            if (i == 10**6):
+                averageRewardOverTheLast100000Steps = reward
             else:
-                averageRewards.append(
-                    calculateNewAverageIncrementally(averageRewards[i - 1], reward, i + 1)
-                )
+                # print("i is " + str(i))
+                # print("(i - 10**6) + 1 is " + str((i - 10**6) + 1))
+                averageRewardOverTheLast100000Steps = calculateNewAverageIncrementally(averageRewardOverTheLast100000Steps, reward, (i - 10**6) + 1)
+                
 
         def updatePercentageOfOptimalLeverChosen():
             nonlocal percentageOfOptimalLeverChosen
@@ -131,10 +135,10 @@ def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float) 
         updatePercentageOfOptimalLeverChosen()
 
         updateEstimate(lever, reward)
-        updateAverageRewards(reward)
+        updateAverageRewardOverTheLast100000Steps(reward)
         walkLevers()
 
     return {
         "percentageOfOptimalLeverChosen": percentageOfOptimalLeverChosen,
-        "averageRewards": averageRewards
+        "averageRewardOverTheLast100000Steps": averageRewardOverTheLast100000Steps
     }

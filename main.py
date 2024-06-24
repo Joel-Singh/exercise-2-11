@@ -16,12 +16,11 @@ def getSingleListOfAverages(listContainingListsOfAverages: list[list[float]]):
         singleListOfAverages.append(average)
     return singleListOfAverages
 
-for i in range(NUMBER_OF_RUNS):
-    singleRun = run(useIncrementalEstimateCalculation=True, chanceToSelectRandomly=0.1)
-    allAverageRewardsIncremental.append(singleRun['averageRewards'])
-    print(str(round(((i + 1) / (NUMBER_OF_RUNS * 2)) * 100, 2)) + "%")
+firstRun = run(useIncrementalEstimateCalculation=True, chanceToSelectRandomly=0.1)
+secondRun = run(useIncrementalEstimateCalculation=True, chanceToSelectRandomly=0.1)
 
-plt.plot(getSingleListOfAverages(allAverageRewardsIncremental), 'r')
+print("averageRewardOverTheLast100000Steps is " + str(firstRun["averageRewardOverTheLast100000Steps"]))
+plt.plot([firstRun['averageRewardOverTheLast100000Steps'], secondRun['averageRewardOverTheLast100000Steps']], 'r')
 
 plt.ylabel("Average reward over the last 100,000 steps")
 plt.xlabel("Parameters (Epsilon, alpha, c, optimistic estimate)")
