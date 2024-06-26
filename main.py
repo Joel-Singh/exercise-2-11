@@ -19,6 +19,7 @@ with futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as ex:
         averageRewardsOverTheLast100000StepsAsFutures.append(ex.submit(runAndGetAverageReward, i))
 
 plt.plot(PARAMETERS, [future.result() for future in averageRewardsOverTheLast100000StepsAsFutures], 'r')
+plt.xticks(PARAMETERS)
 
 plt.ylabel("Average reward over the last 100,000 steps")
 plt.xlabel("Parameters (Epsilon, alpha, c, optimistic estimate)")
