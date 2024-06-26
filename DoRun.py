@@ -103,10 +103,11 @@ def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float) 
 
         def updateAverageRewardOverTheLast100000Steps(reward):
             nonlocal averageRewardOverTheLast100000Steps
-            if (i < 10**6):
+            # dividing by 2 incase I lower the NUMBER_OF_STEPS for testing
+            if (i < (NUMBER_OF_STEPS / 2)):
                 return
 
-            if (i == 10**6):
+            if (i == (NUMBER_OF_STEPS / 2)):
                 averageRewardOverTheLast100000Steps = reward
             else:
                 averageRewardOverTheLast100000Steps = calculateNewAverageIncrementally(averageRewardOverTheLast100000Steps, reward, (i - 10**6) + 1)
