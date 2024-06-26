@@ -6,7 +6,8 @@ averageRewardsOverTheLast100000Steps: list[float] = []
 
 PARAMETERS: Final = [1/128, 1/64, 1/32, 1/16, 1/8, 1/4, 1/2, 1, 2, 4]
 for index,parameter in enumerate(PARAMETERS):
-    averageRewardsOverTheLast100000Steps.append(
+    averageRewardsOverTheLast100000Steps.insert(
+        index,
         run(
             useIncrementalEstimateCalculation=False,
             chanceToSelectRandomly=parameter
