@@ -136,6 +136,9 @@ def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float) 
         updateAverageRewardOverTheLast100000Steps(reward)
         walkLevers()
 
+        if (i % (NUMBER_OF_STEPS * 0.05) == 0):
+            print(str(round((i / NUMBER_OF_STEPS) * 100, 2)) + "%")
+
     return {
         "percentageOfOptimalLeverChosen": percentageOfOptimalLeverChosen,
         "averageRewardOverTheLast100000Steps": averageRewardOverTheLast100000Steps
