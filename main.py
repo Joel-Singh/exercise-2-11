@@ -28,10 +28,25 @@ with futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as ex:
             chanceToSelectRandomly=PARAMETERS[index]
         )['averageRewardOverTheLast100000Steps']
 
+    def greedyWithOptimisticInitialization(index):
+        return run(
+            useIncrementalEstimateCalculation=False,
+            chanceToSelectRandomly=PARAMETERS[index],
+            defaultEstimate=5
+        )['averageRewardOverTheLast100000Steps']
+
     for i,_ in enumerate(PARAMETERS):
-        averageRewardsAsFutures["epsilonGreedy"].append(ex.submit(epsilonGreedy, i))
+        averageRewardsAsFutures["epsilonGreedy"].append(
+            ex.submit(epsilonGreedy, i)
+        )
+
+    for i,_ in enumerate(PARAMETERS):
+        averageRewardsAsFutures["greedyWithOptimisticInitialization"].append(
+            ex.submit(greedyWithOptimisticInitialization, i)
+        )
 
 plt.plot([future.result() for future in averageRewardsAsFutures["epsilonGreedy"]], 'r')
+plt.plot([future.result() for future in averageRewardsAsFutures["greedyWithOptimisticInitialization"]], 'k')
 plt.xticks(np.arange(len(PARAMETERS)), PARAMETERS_AS_STRING)
 
 plt.ylabel("Average reward over the last 100,000 steps")
