@@ -22,14 +22,14 @@ averageRewardsAsFutures: banditAlgorithmAverageRewardsAsFutures = {
 }
 
 with futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as ex:
-    def runAndGetAverageReward(index):
+    def epsilonGreedy(index):
         return run(
             useIncrementalEstimateCalculation=False,
             chanceToSelectRandomly=PARAMETERS[index]
         )['averageRewardOverTheLast100000Steps']
 
     for i,_ in enumerate(PARAMETERS):
-        averageRewardsAsFutures["epsilonGreedy"].append(ex.submit(runAndGetAverageReward, i))
+        averageRewardsAsFutures["epsilonGreedy"].append(ex.submit(epsilonGreedy, i))
 
 plt.plot([future.result() for future in averageRewardsAsFutures["epsilonGreedy"]], 'r')
 plt.xticks(np.arange(len(PARAMETERS)), PARAMETERS_AS_STRING)
