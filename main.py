@@ -31,7 +31,10 @@ with futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as ex:
     for i,_ in enumerate(PARAMETERS):
         averageRewardsAsFutures["epsilonGreedy"].append(ex.submit(epsilonGreedy, i))
 
-plt.plot([future.result() for future in averageRewardsAsFutures["epsilonGreedy"]], 'r')
+def getResults(listOfFutures: list[futures.Future]):
+    return [future.result() for future in listOfFutures]
+
+plt.plot(getResults(averageRewardsAsFutures["epsilonGreedy"]), 'r')
 plt.xticks(np.arange(len(PARAMETERS)), PARAMETERS_AS_STRING)
 
 plt.ylabel("Average reward over the last 100,000 steps")
