@@ -6,14 +6,12 @@ class Run(TypedDict):
     percentageOfOptimalLeverChosen: list[float]
     averageRewardOverTheLast100000Steps: float
 
-def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float) -> Run:
+def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float, defaultEstimate = 0) -> Run:
     STEP_SIZE_PARAMETER: Final = 0.1
 
     NUMBER_OF_STEPS: Final = 2 * 10**6
 
     ARE_LEVERS_WALKING: Final = True
-
-    DEFAULT_ESTIMATE: Final = 0
 
     # Page 31 Second Edition Barto and Sutton
     def calculateNewAverageIncrementally(oldAverage, nextValue, numberOfValues):
@@ -55,7 +53,7 @@ def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float) 
             highestEstimate = -999
             highestEstimateLevers = []
             for _,lever in enumerate(list):
-                estimate = lever['estimate'] if lever['estimate'] is not None else DEFAULT_ESTIMATE
+                estimate = lever['estimate'] if lever['estimate'] is not None else defaultEstimate
                 if (estimate > highestEstimate):
                     highestEstimateLevers = []
                     highestEstimate = estimate
