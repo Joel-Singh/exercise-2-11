@@ -3,7 +3,6 @@ from typing import Final, TypedDict
 import random
 
 class Run(TypedDict):
-    percentageOfOptimalLeverChosen: list[float]
     averageRewardOverTheLast100000Steps: float
 
 def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float) -> Run:
@@ -83,7 +82,6 @@ def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float) 
     averageRewardOverTheLast100000Steps: float = 0
 
     optimalLever = getOptimalLever(levers)
-    percentageOfOptimalLeverChosen: list[float] = []
 
     for i in range(NUMBER_OF_STEPS):
         def chooseLever():
@@ -113,15 +111,6 @@ def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float) 
                 averageRewardOverTheLast100000Steps = calculateNewAverageIncrementally(averageRewardOverTheLast100000Steps, reward, (i - 10**6) + 1)
                 
 
-        def updatePercentageOfOptimalLeverChosen():
-            nonlocal percentageOfOptimalLeverChosen
-            leverChosenWasOptimalAsInt = 1 if lever is optimalLever else 0
-            if (i == 0):
-                percentageOfOptimalLeverChosen.append(leverChosenWasOptimalAsInt)
-            else:
-                percentageOfOptimalLeverChosen.append(
-                    calculateNewAverageIncrementally(percentageOfOptimalLeverChosen[i - 1], leverChosenWasOptimalAsInt, i + 1)
-                )
 
         def walkLevers():
             if (ARE_LEVERS_WALKING):
@@ -131,8 +120,6 @@ def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float) 
         lever = chooseLever()
         reward = lever['getReward']()
 
-        updatePercentageOfOptimalLeverChosen()
-
         updateEstimate(lever, reward)
         updateAverageRewardOverTheLast100000Steps(reward)
         walkLevers()
@@ -141,6 +128,9 @@ def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float) 
             print(str(round((i / NUMBER_OF_STEPS) * 100, 2)) + "%")
 
     return {
-        "percentageOfOptimalLeverChosen": percentageOfOptimalLeverChosen,
         "averageRewardOverTheLast100000Steps": averageRewardOverTheLast100000Steps
     }
+
+def multipleRuns(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float, runs: int):
+    for i in range(runs):
+        run(useIncrementalEstimateCalculation, chanceToSelectRandomly)
