@@ -1,12 +1,14 @@
 import os
 import numpy as np
 from typing import Final, TypedDict
-from DoRun import run
+from DoRun import multipleRuns
 import matplotlib.pyplot as plt
 from concurrent import futures
 
 PARAMETERS: Final = [1/128, 1/64, 1/32, 1/16, 1/8, 1/4, 1/2, 1, 2, 4]
 PARAMETERS_AS_STRING: Final = ["1/128", "1/64", "1/32", "1/16", "1/8", "1/4", "1/2", "1", "2", "4"]
+
+NUMBER_OF_RUNS: Final = 2000
 
 class banditAlgorithmAverageRewardsAsFutures(TypedDict):
     epsilonGreedy: list[futures.Future]
@@ -21,15 +23,15 @@ averageRewardsAsFutures: banditAlgorithmAverageRewardsAsFutures = {
     "upperConfidenceBound": [],
 }
 
-with futures.ProcessPoolExecutor(max_workers=os.cpu_count()) as ex:
-    def epsilonGreedy(index):
-        return run(
+with futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as ex:
+    def epsilonGreedy(chanceToSelectRandomly):
+        return multipleRuns(
             useIncrementalEstimateCalculation=False,
-            chanceToSelectRandomly=PARAMETERS[index]
-        )['averageRewardOverTheLast100000Steps']
-
-    for i,_ in enumerate(PARAMETERS):
-        averageRewardsAsFutures["epsilonGreedy"].append(ex.submit(epsilonGreedy, i))
+            chanceToSelectRandomly=chanceToSelectRandomly,
+            runs=NUMBER_OF_RUNS
+        )
+    for parameter in PARAMETERS:
+        averageRewardsAsFutures["epsilonGreedy"].append(ex.submit(epsilonGreedy, parameter))
 
 def getResults(listOfFutures: list[futures.Future]):
     return [future.result() for future in listOfFutures]

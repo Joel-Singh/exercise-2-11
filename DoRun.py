@@ -2,10 +2,8 @@ from collections.abc import Callable
 from typing import Final, TypedDict
 import random
 
-class Run(TypedDict):
-    averageRewardOverTheLast100000Steps: float
-
-def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float) -> Run:
+# returns averageRewardOverTheLast100000Steps
+def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float):
     STEP_SIZE_PARAMETER: Final = 0.1
 
     NUMBER_OF_STEPS: Final = 2 * 10**6
@@ -124,13 +122,12 @@ def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float) 
         updateAverageRewardOverTheLast100000Steps(reward)
         walkLevers()
 
-        if (i % (NUMBER_OF_STEPS * 0.05) == 0):
-            print(str(round((i / NUMBER_OF_STEPS) * 100, 2)) + "%")
-
-    return {
-        "averageRewardOverTheLast100000Steps": averageRewardOverTheLast100000Steps
-    }
+    return averageRewardOverTheLast100000Steps 
 
 def multipleRuns(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float, runs: int):
+    averageRewards: list[float] = []
     for i in range(runs):
-        run(useIncrementalEstimateCalculation, chanceToSelectRandomly)
+        averageRewards.append(run(useIncrementalEstimateCalculation, chanceToSelectRandomly))
+        print(str(((i + 1) / runs) * 100) + str("%"))
+    average = sum(averageRewards) / len(averageRewards)
+    return average
