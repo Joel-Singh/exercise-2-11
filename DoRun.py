@@ -4,6 +4,12 @@ import random
 import time
 import numpy as np
 
+totalChooseLever = 0
+totalUpdateEstimate = 0
+totalUpdateAverageReward = 0
+totalWalkLevers = 0
+totalIteratingThroughLevers = 0
+
 # returns averageRewardOverTheLast100000Steps
 def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float):
     STEP_SIZE_PARAMETER: Final = 0.1
@@ -121,13 +127,39 @@ def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float):
             for lever in levers:
                 lever["takeRandomWalk"]()
 
+        startTime = time.time()
         lever = chooseLever()
+        endTime = time.time()
+        global totalChooseLever
+        totalChooseLever += endTime - startTime
+
         reward = lever['getReward']()
 
+        startTime = time.time()
         updateEstimate(lever, reward)
-        updateAverageRewardOverTheLast100000Steps(reward)
-        walkLevers()
+        endTime = time.time()
+        global totalUpdateEstimate
+        totalUpdateEstimate += endTime - startTime
 
+
+        startTime = time.time()
+        updateAverageRewardOverTheLast100000Steps(reward)
+        endTime = time.time()
+        global totalUpdateAverageReward
+        totalUpdateAverageReward += endTime - startTime
+
+        startTime = time.time()
+        walkLevers()
+        endTime = time.time()
+        global totalWalkLevers
+        totalWalkLevers += endTime - startTime
+
+
+    print("totalChooseLever " + str(totalChooseLever))
+    print("totalUpdateEstimate " + str(totalUpdateEstimate))
+    print("totalUpdateAverageReward " + str(totalUpdateAverageReward))
+    print("totalWalkLevers " + str(totalWalkLevers))
+    print("totalIteratingThroughLevers " + str(totalIteratingThroughLevers))
     return averageRewardOverTheLast100000Steps 
 
 def multipleRuns(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float, runs: int):
