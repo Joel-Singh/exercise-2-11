@@ -1,6 +1,8 @@
 from collections.abc import Callable
 from typing import Final, TypedDict
 import random
+import time
+import numpy as np
 
 # returns averageRewardOverTheLast100000Steps
 def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float):
@@ -23,11 +25,20 @@ def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float):
         takeRandomWalk: Callable[[], None]
         getTrueValue: Callable[[], float]
 
+    currentRandomNumber: int = -1
+    randomWalkNumbers: np.ndarray = np.random.normal(0, 0.01, NUMBER_OF_STEPS * 10)
+    def getRandomWalkNumber():
+        nonlocal currentRandomNumber
+        nonlocal randomWalkNumbers
+
+        currentRandomNumber = currentRandomNumber + 1
+        return randomWalkNumbers[currentRandomNumber]
+
     def createLever() -> Lever:
         trueValue = random.normalvariate(0, 1)
         def takeRandomWalk():
             nonlocal trueValue
-            trueValue += random.normalvariate(0, 0.01)
+            trueValue += getRandomWalkNumber()
         return {
             "estimate": None,
             "getReward": lambda: random.normalvariate(trueValue, 1),
@@ -77,8 +88,6 @@ def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float):
 
     averageRewardOverTheLast100000Steps: float = 0
 
-    optimalLever = getOptimalLever(levers)
-
     for i in range(NUMBER_OF_STEPS):
         def chooseLever():
             if (random.random() < chanceToSelectRandomly):
@@ -109,11 +118,8 @@ def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float):
 
 
         def walkLevers():
-            if (ARE_LEVERS_WALKING):
-                for _,lever in enumerate(levers):
-                    lever["takeRandomWalk"]()
             for lever in levers:
-                lever["takeRandomWalk"](i)
+                lever["takeRandomWalk"]()
 
         lever = chooseLever()
         reward = lever['getReward']()
