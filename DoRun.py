@@ -8,8 +8,6 @@ def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float):
 
     NUMBER_OF_STEPS: Final = 2 * 10**6
 
-    ARE_LEVERS_WALKING: Final = True
-
     DEFAULT_ESTIMATE: Final = 0
 
     # Page 31 Second Edition Barto and Sutton
@@ -114,6 +112,8 @@ def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float):
             if (ARE_LEVERS_WALKING):
                 for _,lever in enumerate(levers):
                     lever["takeRandomWalk"]()
+            for lever in levers:
+                lever["takeRandomWalk"](i)
 
         lever = chooseLever()
         reward = lever['getReward']()
