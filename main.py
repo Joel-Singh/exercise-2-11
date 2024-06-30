@@ -16,7 +16,7 @@ class banditAlgorithmAverageRewardsAsFutures(TypedDict):
     greedyWithOptimisticInitialization: list[futures.Future]
     upperConfidenceBound: list[futures.Future]
 
-averageRewardsAsFutures: banditAlgorithmAverageRewardsAsFutures = {
+averageRewards: banditAlgorithmAverageRewardsAsFutures = {
     "epsilonGreedy": [],
     "gradient": [],
     "greedyWithOptimisticInitialization": [],
@@ -30,13 +30,12 @@ with futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as ex:
             chanceToSelectRandomly=chanceToSelectRandomly,
             runs=NUMBER_OF_RUNS
         )
-    for parameter in PARAMETERS:
-        averageRewardsAsFutures["epsilonGreedy"].append(ex.submit(epsilonGreedy, parameter))
+    averageRewards["epsilonGreedy"] = list(ex.map(epsilonGreedy, PARAMETERS)) # type: ignore
 
 def getResults(listOfFutures: list[futures.Future]):
     return [future.result() for future in listOfFutures]
 
-plt.plot(getResults(averageRewardsAsFutures["epsilonGreedy"]), 'r')
+plt.plot(averageRewards["epsilonGreedy"], 'r')
 plt.xticks(np.arange(len(PARAMETERS)), PARAMETERS_AS_STRING)
 
 plt.ylabel("Average reward over the last 100,000 steps")
