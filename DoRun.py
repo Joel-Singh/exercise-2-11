@@ -134,6 +134,7 @@ def multipleRuns(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly
     averageRewards: list[float] = []
     for i in range(runs):
         averageRewards.append(run(useIncrementalEstimateCalculation, chanceToSelectRandomly))
-        print(str(((i + 1) / runs) * 100) + str("%"))
+        percentageComplete = str(((i + 1) / runs) * 100) + str("%")
+        print("For ε=" + str(chanceToSelectRandomly) + " is " + percentageComplete)
     average = sum(averageRewards) / len(averageRewards)
     return average
