@@ -44,13 +44,6 @@ def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float, 
             "getTrueValue": lambda: trueValue
         }
 
-    def getOptimalLever(levers: list[Lever]):
-        optimalLever = levers[0]
-        for lever in levers:
-            if (optimalLever["getTrueValue"]() < lever["getTrueValue"]()):
-                optimalLever = lever
-        return optimalLever
-
     def chooseLeverRandomly():
         return random.choice(levers)
 
