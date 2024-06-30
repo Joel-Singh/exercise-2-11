@@ -10,18 +10,10 @@ PARAMETERS_AS_STRING: Final = ["1/128", "1/64", "1/32", "1/16", "1/8", "1/4", "1
 
 NUMBER_OF_RUNS: Final = 2000
 
-class banditAlgorithmAverageRewardsAsFutures(TypedDict):
-    epsilonGreedy: list[float]
-    gradient: list[float]
-    greedyWithOptimisticInitialization: list[float]
-    upperConfidenceBound: list[float]
-
-averageRewards: banditAlgorithmAverageRewardsAsFutures = {
-    "epsilonGreedy": [],
-    "gradient": [],
-    "greedyWithOptimisticInitialization": [],
-    "upperConfidenceBound": [],
-}
+averageRewardsEpsilonGreedy: list[float] = []
+averageRewardsGradient: list[float] = []
+averageRewardsGreedyWithOptimisticInitialization: list[float] = []
+averageRewardsUpperConfidenceBound: list[float] = []
 
 with futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as ex:
     def epsilonGreedy(chanceToSelectRandomly):
@@ -30,12 +22,12 @@ with futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as ex:
             chanceToSelectRandomly=chanceToSelectRandomly,
             runs=NUMBER_OF_RUNS
         )
-    averageRewards["epsilonGreedy"] = list(ex.map(epsilonGreedy, PARAMETERS))
+    averageRewardsEpsilonGreedy = list(ex.map(epsilonGreedy, PARAMETERS))
 
 def getResults(listOfFutures: list[futures.Future]):
     return [future.result() for future in listOfFutures]
 
-plt.plot(averageRewards["epsilonGreedy"], 'r')
+plt.plot(averageRewardsEpsilonGreedy, 'r')
 plt.xticks(np.arange(len(PARAMETERS)), PARAMETERS_AS_STRING)
 
 plt.ylabel("Average reward over the last 100,000 steps")
