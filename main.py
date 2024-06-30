@@ -22,12 +22,22 @@ with futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as ex:
             chanceToSelectRandomly=chanceToSelectRandomly,
             runs=NUMBER_OF_RUNS
         )
+
+    def greedyWithOptimisticInitialization(defaultEstimate):
+        return multipleRuns(
+            useIncrementalEstimateCalculation=False,
+            chanceToSelectRandomly=0.1,
+            runs=NUMBER_OF_RUNS,
+            defaultEstimate=defaultEstimate
+        )
     averageRewardsEpsilonGreedy = list(ex.map(epsilonGreedy, PARAMETERS))
+    averageRewardsGreedyWithOptimisticInitialization = list(ex.map(epsilonGreedy, PARAMETERS))
 
 def getResults(listOfFutures: list[futures.Future]):
     return [future.result() for future in listOfFutures]
 
 plt.plot(averageRewardsEpsilonGreedy, 'r')
+plt.plot(averageRewardsGreedyWithOptimisticInitialization, 'k')
 plt.xticks(np.arange(len(PARAMETERS)), PARAMETERS_AS_STRING)
 
 plt.ylabel("Average reward over the last 100,000 steps")
