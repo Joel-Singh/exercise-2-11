@@ -5,7 +5,7 @@ import time
 import numpy as np
 
 # returns averageRewardOverTheLast100000Steps
-def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float, defaultEstimate = 0):
+def runGreedy(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float, defaultEstimate = 0):
     STEP_SIZE_PARAMETER: Final = 0.1
 
     NUMBER_OF_STEPS: Final = 2 * 10**6
@@ -124,7 +124,7 @@ def run(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float, 
 def multipleRuns(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float, runs: int, defaultEstimate = 0):
     averageRewards: list[float] = []
     for i in range(runs):
-        averageRewards.append(run(useIncrementalEstimateCalculation, chanceToSelectRandomly, defaultEstimate))
+        averageRewards.append(runGreedy(useIncrementalEstimateCalculation, chanceToSelectRandomly, defaultEstimate))
         percentageComplete = str(((i + 1) / runs) * 100) + str("%")
         print("For ε=" + str(chanceToSelectRandomly) + " is " + percentageComplete)
     average = sum(averageRewards) / len(averageRewards)
