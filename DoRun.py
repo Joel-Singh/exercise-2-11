@@ -1,12 +1,11 @@
 from collections.abc import Callable
 from typing import Final, TypedDict
 import random
-import time
 import numpy as np
 from numpy.lib import math
 
 # returns averageRewardOverTheLast100000Steps
-def runGreedy(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float, defaultEstimate = 0):
+def runGreedy(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float, defaultEstimate: float = 0):
     STEP_SIZE_PARAMETER: Final = 0.1
 
     NUMBER_OF_STEPS: Final = 2 * 10**6
@@ -18,83 +17,49 @@ def runGreedy(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: f
     def calculateNewAverageWithStepSizeParameter(oldAverage, nextValue, stepSizeParameter):
         return oldAverage + (stepSizeParameter) * (nextValue - oldAverage)
 
-    class Lever(TypedDict):
-        estimate: None | float
-        getReward: Callable[[], float]
-        takeRandomWalk: Callable[[], None]
-        getTrueValue: Callable[[], float]
+    estimates: list[float | None] = [None for _ in range(10)]
+    trueValues: list[float] = [random.normalvariate(0, 1) for _ in range(10)]
 
-    currentRandomNumber: int = -1
-    randomWalkNumbers: np.ndarray = np.random.normal(0, 0.01, NUMBER_OF_STEPS * 10)
-    def getRandomWalkNumber():
-        nonlocal currentRandomNumber
-        nonlocal randomWalkNumbers
-
-        currentRandomNumber = currentRandomNumber + 1
-        return randomWalkNumbers[currentRandomNumber]
-
-    def createLever() -> Lever:
-        trueValue = random.normalvariate(0, 1)
-        def takeRandomWalk():
-            nonlocal trueValue
-            trueValue += getRandomWalkNumber()
-        return {
-            "estimate": None,
-            "getReward": lambda: random.normalvariate(trueValue, 1),
-            "takeRandomWalk": takeRandomWalk,
-            "getTrueValue": lambda: trueValue
-        }
+    def getReward(action: int):
+        return random.normalvariate(trueValues[action], 1)
 
     def chooseLeverRandomly():
-        return random.choice(levers)
+        return random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 
     def chooseLeverGreedily():
-        def getHighestEstimateLevers(list: list[Lever]) -> list[Lever]:
+        def getHighestEstimateActions() -> list[int]:
             highestEstimate = -999
-            highestEstimateLevers = []
-            for _,lever in enumerate(list):
-                estimate = lever['estimate'] if lever['estimate'] is not None else defaultEstimate
-                if (estimate > highestEstimate):
-                    highestEstimateLevers = []
+            highestEstimateActions = []
+            for i in range(10):
+                estimate = estimates[i] if estimates[i] is not None else defaultEstimate
+                if (estimate > highestEstimate): # type:ignore
+                    highestEstimateActions = []
                     highestEstimate = estimate
-                    highestEstimateLevers.append(lever)
+                    highestEstimateActions.append(i)
                 elif(estimate == highestEstimate):
-                    highestEstimateLevers.append(lever)
-            return highestEstimateLevers
+                    highestEstimateActions.append(i)
+            return highestEstimateActions
 
-        highestEstimateLevers = getHighestEstimateLevers(levers)
-        return random.choice(highestEstimateLevers)
-
-    levers = [
-        createLever(),
-        createLever(),
-        createLever(),
-        createLever(),
-        createLever(),
-        createLever(),
-        createLever(),
-        createLever(),
-        createLever(),
-        createLever(),
-    ]
+        highestEstimateActions = getHighestEstimateActions()
+        return random.choice(highestEstimateActions)
 
     averageRewardOverTheLast100000Steps: float = 0
 
     for i in range(NUMBER_OF_STEPS):
-        def chooseLever():
+        def chooseAction() -> int:
             if (random.random() < chanceToSelectRandomly):
                 return chooseLeverRandomly()
             else:
                 return chooseLeverGreedily()
 
-        def updateEstimate(lever, reward):
-            if (lever['estimate'] is None):
-                lever['estimate'] = reward
+        def updateEstimate(action, reward):
+            if (estimates[action] is None):
+                estimates[action] = reward
             else:
                 if (useIncrementalEstimateCalculation):
-                    lever['estimate'] = calculateNewAverageIncrementally(lever['estimate'], reward, i + 1)
+                    estimates[action] = calculateNewAverageIncrementally(estimates[action], reward, i + 1)
                 else:
-                    lever['estimate'] = calculateNewAverageWithStepSizeParameter(lever['estimate'], reward, STEP_SIZE_PARAMETER)
+                    estimates[action] = calculateNewAverageWithStepSizeParameter(estimates[action], reward, STEP_SIZE_PARAMETER)
 
         def updateAverageRewardOverTheLast100000Steps(reward):
             nonlocal averageRewardOverTheLast100000Steps
@@ -107,16 +72,23 @@ def runGreedy(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: f
             else:
                 averageRewardOverTheLast100000Steps = calculateNewAverageIncrementally(averageRewardOverTheLast100000Steps, reward, (i - 10**6) + 1)
                 
+        currentRandomNumber: int = -1
+        randomWalkNumbers: np.ndarray = np.random.normal(0, 0.01, NUMBER_OF_STEPS * 10)
+        def getRandomWalkNumber():
+            nonlocal currentRandomNumber
+            nonlocal randomWalkNumbers
 
+            currentRandomNumber = currentRandomNumber + 1
+            return randomWalkNumbers[currentRandomNumber]
 
         def walkLevers():
-            for lever in levers:
-                lever["takeRandomWalk"]()
+            for i,_ in enumerate(trueValues):
+                trueValues[i] += getRandomWalkNumber()
 
-        lever = chooseLever()
-        reward = lever['getReward']()
+        action = chooseAction()
+        reward = getReward(action)
 
-        updateEstimate(lever, reward)
+        updateEstimate(action, reward)
         updateAverageRewardOverTheLast100000Steps(reward)
         walkLevers()
 
