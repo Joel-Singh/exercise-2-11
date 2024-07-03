@@ -23,10 +23,10 @@ def runGreedy(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: f
     def getReward(action: int):
         return random.normalvariate(trueValues[action], 1)
 
-    def chooseLeverRandomly():
+    def chooseActionRandomly():
         return random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 
-    def chooseLeverGreedily():
+    def chooseActionGreedily():
         def getHighestEstimateActions() -> list[int]:
             highestEstimate = -999
             highestEstimateActions = []
@@ -48,9 +48,9 @@ def runGreedy(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: f
     for i in range(NUMBER_OF_STEPS):
         def chooseAction() -> int:
             if (random.random() < chanceToSelectRandomly):
-                return chooseLeverRandomly()
+                return chooseActionRandomly()
             else:
-                return chooseLeverGreedily()
+                return chooseActionGreedily()
 
         def updateEstimate(action, reward):
             if (estimates[action] is None):
@@ -81,7 +81,7 @@ def runGreedy(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: f
             currentRandomNumber = currentRandomNumber + 1
             return randomWalkNumbers[currentRandomNumber]
 
-        def walkLevers():
+        def walkActions():
             for i,_ in enumerate(trueValues):
                 trueValues[i] += getRandomWalkNumber()
 
@@ -90,7 +90,7 @@ def runGreedy(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: f
 
         updateEstimate(action, reward)
         updateAverageRewardOverTheLast100000Steps(reward)
-        walkLevers()
+        walkActions()
 
     return averageRewardOverTheLast100000Steps 
 
