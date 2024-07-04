@@ -33,7 +33,7 @@ with futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as ex:
             "Default estimate: " + str(round(defaultEstimate))
         )
     averageRewardsEpsilonGreedy = list(ex.map(epsilonGreedy, PARAMETERS))
-    averageRewardsGreedyWithOptimisticInitialization = list(ex.map(epsilonGreedy, PARAMETERS))
+    averageRewardsGreedyWithOptimisticInitialization = list(ex.map(greedyWithOptimisticInitialization, PARAMETERS))
 
 def getResults(listOfFutures: list[futures.Future]):
     return [future.result() for future in listOfFutures]
