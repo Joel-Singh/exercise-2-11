@@ -30,7 +30,7 @@ with futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as ex:
                 defaultEstimate=defaultEstimate
             ),
             NUMBER_OF_RUNS,
-            "Default estimate: " + str(round(defaultEstimate))
+            "Optimistic: " + str(round(defaultEstimate))
         )
     averageRewardsEpsilonGreedy = list(ex.map(epsilonGreedy, PARAMETERS))
     averageRewardsGreedyWithOptimisticInitialization = list(ex.map(greedyWithOptimisticInitialization, PARAMETERS))
