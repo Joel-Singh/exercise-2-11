@@ -18,14 +18,12 @@ averageRewardsUpperConfidenceBound: list[float] = []
 with futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as ex:
     def epsilonGreedy(chanceToSelectRandomly):
         return multipleRuns(
-            useIncrementalEstimateCalculation=False,
             chanceToSelectRandomly=chanceToSelectRandomly,
             runs=NUMBER_OF_RUNS
         )
 
     def greedyWithOptimisticInitialization(defaultEstimate):
         return multipleRuns(
-            useIncrementalEstimateCalculation=False,
             chanceToSelectRandomly=0.1,
             runs=NUMBER_OF_RUNS,
             defaultEstimate=defaultEstimate

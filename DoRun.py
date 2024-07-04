@@ -16,7 +16,6 @@ def getReward(action: int, trueValues: list[float]):
 
 # Returns reward
 def getChooseActionGreedy(
-    useIncrementalEstimateCalculation: bool = False,
     chanceToSelectRandomly: float = 0.1,
     defaultEstimate: float = 0.1
 ) -> Callable[[int, list[float]], float]:
@@ -47,10 +46,7 @@ def getChooseActionGreedy(
         if (estimates[action] is None):
             estimates[action] = reward
         else:
-            if (useIncrementalEstimateCalculation):
-                estimates[action] = calculateNewAverageIncrementally(estimates[action], reward, currentStep + 1)
-            else:
-                estimates[action] = calculateNewAverageWithStepSizeParameter(estimates[action], reward, STEP_SIZE_PARAMETER)
+            estimates[action] = calculateNewAverageWithStepSizeParameter(estimates[action], reward, STEP_SIZE_PARAMETER)
 
     def chooseAction(currentStep: int, trueValues: list[float]) -> float:
         action: int = 0
@@ -138,11 +134,10 @@ def run(chooseAction: Callable[[int, list[float]], float]):
     return averageRewardOverTheLast100000Steps 
 
 
-def multipleRuns(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float, runs: int, defaultEstimate = 0):
+def multipleRuns(chanceToSelectRandomly: float, runs: int, defaultEstimate = 0):
     averageRewards: list[float] = []
     for i in range(runs):
         averageReward = run(getChooseActionGreedy(
-            useIncrementalEstimateCalculation,
             chanceToSelectRandomly,
             defaultEstimate
         ))
