@@ -14,11 +14,13 @@ def calculateNewAverageWithStepSizeParameter(oldAverage, nextValue, stepSizePara
 def getReward(action: int, trueValues: list[float]):
     return random.normalvariate(trueValues[action], 1)
 
+ChooseAction = Callable[[int, list[float]], float]
+
 # Returns reward
 def getChooseActionGreedy(
     chanceToSelectRandomly: float = 0.1,
     defaultEstimate: float = 0.1
-) -> Callable[[int, list[float]], float]:
+) -> ChooseAction:
     estimates: list[None | float] = [None for _ in range(10)]
 
     def chooseActionRandomly():
@@ -60,7 +62,7 @@ def getChooseActionGreedy(
 
     return chooseAction
 
-def getChooseActionGradient(stepSizeParameter: float) -> Callable[[int, list[float]], float]:
+def getChooseActionGradient(stepSizeParameter: float) -> ChooseAction:
     preferences: list[float] = [0 for _ in range(10)]
     averageReward = 0
 
@@ -94,7 +96,7 @@ def getChooseActionGradient(stepSizeParameter: float) -> Callable[[int, list[flo
 
     return chooseAction 
 
-def run(chooseAction: Callable[[int, list[float]], float]):
+def run(chooseAction: ChooseAction):
     NUMBER_OF_STEPS: Final = 2 * 10**6
 
     trueValues: list[float] = [random.normalvariate(0, 1) for _ in range(10)]
