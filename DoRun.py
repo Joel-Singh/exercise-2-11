@@ -12,7 +12,11 @@ def calculateNewAverageWithStepSizeParameter(oldAverage, nextValue, stepSizePara
     return oldAverage + (stepSizeParameter) * (nextValue - oldAverage)
 
 # Returns reward
-def getChooseActionGreedy(useIncrementalEstimateCalculation: bool = False, chanceToSelectRandomly: float = 0.1, defaultEstimate: float = 0.1) -> Callable[[int, list[float]], float]:
+def getChooseActionGreedy(
+    useIncrementalEstimateCalculation: bool = False,
+    chanceToSelectRandomly: float = 0.1,
+    defaultEstimate: float = 0.1
+) -> Callable[[int, list[float]], float]:
     estimates: list[None | float] = [None for _ in range(10)]
 
     def chooseActionRandomly():
