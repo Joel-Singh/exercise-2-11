@@ -60,45 +60,6 @@ def getChooseActionGreedy(useIncrementalEstimateCalculation: bool = False, chanc
 
     return chooseAction
 
-def run(chooseAction: Callable[[int, list[float]], float]):
-    NUMBER_OF_STEPS: Final = 2 * 10**6
-
-    trueValues: list[float] = [random.normalvariate(0, 1) for _ in range(10)]
-
-    averageRewardOverTheLast100000Steps: float = 0
-
-    for i in range(NUMBER_OF_STEPS):
-        def updateAverageRewardOverTheLast100000Steps(reward):
-            nonlocal averageRewardOverTheLast100000Steps
-            # dividing by 2 incase I lower the NUMBER_OF_STEPS for testing
-            if (i < (NUMBER_OF_STEPS / 2)):
-                return
-
-            if (i == (NUMBER_OF_STEPS / 2)):
-                averageRewardOverTheLast100000Steps = reward
-            else:
-                averageRewardOverTheLast100000Steps = calculateNewAverageIncrementally(averageRewardOverTheLast100000Steps, reward, (i - 10**6) + 1)
-                
-        currentRandomNumber: int = -1
-        randomWalkNumbers: np.ndarray = np.random.normal(0, 0.01, NUMBER_OF_STEPS * 10)
-        def getRandomWalkNumber():
-            nonlocal currentRandomNumber
-            nonlocal randomWalkNumbers
-
-            currentRandomNumber = currentRandomNumber + 1
-            return randomWalkNumbers[currentRandomNumber]
-
-        def walkActions():
-            for i,_ in enumerate(trueValues):
-                trueValues[i] += getRandomWalkNumber()
-
-        reward = chooseAction(i, trueValues)
-
-        updateAverageRewardOverTheLast100000Steps(reward)
-        walkActions()
-
-    return averageRewardOverTheLast100000Steps 
-
 def runGradient(stepSizeParameter: float):
     NUMBER_OF_STEPS: Final = 2 * 10**6
 
@@ -194,6 +155,46 @@ def runGradient(stepSizeParameter: float):
         walkLevers()
 
     return averageRewardOverTheLast100000Steps 
+
+def run(chooseAction: Callable[[int, list[float]], float]):
+    NUMBER_OF_STEPS: Final = 2 * 10**6
+
+    trueValues: list[float] = [random.normalvariate(0, 1) for _ in range(10)]
+
+    averageRewardOverTheLast100000Steps: float = 0
+
+    for i in range(NUMBER_OF_STEPS):
+        def updateAverageRewardOverTheLast100000Steps(reward):
+            nonlocal averageRewardOverTheLast100000Steps
+            # dividing by 2 incase I lower the NUMBER_OF_STEPS for testing
+            if (i < (NUMBER_OF_STEPS / 2)):
+                return
+
+            if (i == (NUMBER_OF_STEPS / 2)):
+                averageRewardOverTheLast100000Steps = reward
+            else:
+                averageRewardOverTheLast100000Steps = calculateNewAverageIncrementally(averageRewardOverTheLast100000Steps, reward, (i - 10**6) + 1)
+                
+        currentRandomNumber: int = -1
+        randomWalkNumbers: np.ndarray = np.random.normal(0, 0.01, NUMBER_OF_STEPS * 10)
+        def getRandomWalkNumber():
+            nonlocal currentRandomNumber
+            nonlocal randomWalkNumbers
+
+            currentRandomNumber = currentRandomNumber + 1
+            return randomWalkNumbers[currentRandomNumber]
+
+        def walkActions():
+            for i,_ in enumerate(trueValues):
+                trueValues[i] += getRandomWalkNumber()
+
+        reward = chooseAction(i, trueValues)
+
+        updateAverageRewardOverTheLast100000Steps(reward)
+        walkActions()
+
+    return averageRewardOverTheLast100000Steps 
+
 
 def multipleRuns(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float, runs: int, defaultEstimate = 0):
     averageRewards: list[float] = []
