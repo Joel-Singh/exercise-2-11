@@ -19,7 +19,7 @@ ChooseAction = Callable[[int, list[float]], float]
 # Returns reward
 def getChooseActionGreedy(
     chanceToSelectRandomly: float = 0.1,
-    defaultEstimate: float = 0.1
+    defaultEstimate: float = 0
 ) -> ChooseAction:
     estimates: list[None | float] = [None for _ in range(10)]
 
