@@ -87,7 +87,7 @@ def getChooseActionGradient(stepSizeParameter: float) -> ChooseAction:
             else:
                 preferences[i] = preference - stepSizeParameter * (reward - averageReward) * probabilities[i]
 
-    def chooseAction(trueValues, currentStep):
+    def chooseAction(currentStep: int, trueValues: list[float]):
         action = random.choices([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], getProbabilities())[0] 
         reward: float = getReward(action, trueValues)
         updateAverageReward(reward, currentStep)
