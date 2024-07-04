@@ -12,7 +12,7 @@ def calculateNewAverageWithStepSizeParameter(oldAverage, nextValue, stepSizePara
     return oldAverage + (stepSizeParameter) * (nextValue - oldAverage)
 
 # Returns reward
-def getChooseActionGreedy(trueValues: list[float], useIncrementalEstimateCalculation: bool = False, chanceToSelectRandomly: float = 0.1, defaultEstimate: float = 0.1) -> Callable[[int], float]:
+def getChooseActionGreedy(useIncrementalEstimateCalculation: bool = False, chanceToSelectRandomly: float = 0.1, defaultEstimate: float = 0.1) -> Callable[[int, list[float]], float]:
     estimates: list[None | float] = [None for _ in range(10)]
 
     def chooseActionRandomly():
@@ -35,7 +35,7 @@ def getChooseActionGreedy(trueValues: list[float], useIncrementalEstimateCalcula
         highestEstimateActions = getHighestEstimateActions()
         return random.choice(highestEstimateActions)
 
-    def getReward(action: int):
+    def getReward(action: int, trueValues: list[float]):
         return random.normalvariate(trueValues[action], 1)
 
     STEP_SIZE_PARAMETER: Final = 0.1
@@ -48,69 +48,26 @@ def getChooseActionGreedy(trueValues: list[float], useIncrementalEstimateCalcula
             else:
                 estimates[action] = calculateNewAverageWithStepSizeParameter(estimates[action], reward, STEP_SIZE_PARAMETER)
 
-    def chooseAction(currentStep: int) -> float:
+    def chooseAction(currentStep: int, trueValues: list[float]) -> float:
         action: int = 0
         if (random.random() < chanceToSelectRandomly):
             action = chooseActionRandomly()
         else:
             action = chooseActionGreedily()
-        reward = getReward(action)
+        reward = getReward(action, trueValues)
         updateEstimate(action, reward, currentStep)
         return reward
 
     return chooseAction
 
-# returns averageRewardOverTheLast100000Steps
-def runGreedy(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float, defaultEstimate: float = 0):
-    STEP_SIZE_PARAMETER: Final = 0.1
-
+def run(chooseAction: Callable[[int, list[float]], float]):
     NUMBER_OF_STEPS: Final = 2 * 10**6
 
-
     trueValues: list[float] = [random.normalvariate(0, 1) for _ in range(10)]
-
-    def getReward(action: int):
-        return random.normalvariate(trueValues[action], 1)
-
-    estimates: list[float | None] = [None for _ in range(10)]
-    def chooseActionRandomly():
-        return random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-
-    def chooseActionGreedily():
-        def getHighestEstimateActions() -> list[int]:
-            highestEstimate = -999
-            highestEstimateActions = []
-            for i in range(10):
-                estimate = estimates[i] if estimates[i] is not None else defaultEstimate
-                if (estimate > highestEstimate): # type:ignore
-                    highestEstimateActions = []
-                    highestEstimate = estimate
-                    highestEstimateActions.append(i)
-                elif(estimate == highestEstimate):
-                    highestEstimateActions.append(i)
-            return highestEstimateActions
-
-        highestEstimateActions = getHighestEstimateActions()
-        return random.choice(highestEstimateActions)
 
     averageRewardOverTheLast100000Steps: float = 0
 
     for i in range(NUMBER_OF_STEPS):
-        def chooseAction() -> int:
-            if (random.random() < chanceToSelectRandomly):
-                return chooseActionRandomly()
-            else:
-                return chooseActionGreedily()
-
-        def updateEstimate(action, reward):
-            if (estimates[action] is None):
-                estimates[action] = reward
-            else:
-                if (useIncrementalEstimateCalculation):
-                    estimates[action] = calculateNewAverageIncrementally(estimates[action], reward, i + 1)
-                else:
-                    estimates[action] = calculateNewAverageWithStepSizeParameter(estimates[action], reward, STEP_SIZE_PARAMETER)
-
         def updateAverageRewardOverTheLast100000Steps(reward):
             nonlocal averageRewardOverTheLast100000Steps
             # dividing by 2 incase I lower the NUMBER_OF_STEPS for testing
@@ -135,15 +92,12 @@ def runGreedy(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: f
             for i,_ in enumerate(trueValues):
                 trueValues[i] += getRandomWalkNumber()
 
-        action = chooseAction()
-        reward = getReward(action)
+        reward = chooseAction(i, trueValues)
 
-        updateEstimate(action, reward)
         updateAverageRewardOverTheLast100000Steps(reward)
         walkActions()
 
     return averageRewardOverTheLast100000Steps 
-
 
 def runGradient(stepSizeParameter: float):
     NUMBER_OF_STEPS: Final = 2 * 10**6
@@ -244,7 +198,12 @@ def runGradient(stepSizeParameter: float):
 def multipleRuns(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float, runs: int, defaultEstimate = 0):
     averageRewards: list[float] = []
     for i in range(runs):
-        averageRewards.append(runGreedy(useIncrementalEstimateCalculation, chanceToSelectRandomly, defaultEstimate))
+        averageReward = run(getChooseActionGreedy(
+            useIncrementalEstimateCalculation,
+            chanceToSelectRandomly,
+            defaultEstimate
+        ))
+        averageRewards.append(averageReward)
         percentageComplete = str(((i + 1) / runs) * 100) + str("%")
         print("For ε=" + str(chanceToSelectRandomly) + " is " + percentageComplete)
     average = sum(averageRewards) / len(averageRewards)
