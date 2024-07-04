@@ -136,15 +136,12 @@ def run(chooseAction: ChooseAction):
     return averageRewardOverTheLast100000Steps 
 
 
-def multipleRuns(chanceToSelectRandomly: float, runs: int, defaultEstimate = 0):
+def multipleRuns(chooseActionGetter: Callable[[], ChooseAction], runs: int, name: str):
     averageRewards: list[float] = []
     for i in range(runs):
-        averageReward = run(getChooseActionGreedy(
-            chanceToSelectRandomly,
-            defaultEstimate
-        ))
+        averageReward = run(chooseActionGetter())
         averageRewards.append(averageReward)
         percentageComplete = str(((i + 1) / runs) * 100) + str("%")
-        print("For ε=" + str(chanceToSelectRandomly) + " is " + percentageComplete)
+        print("For " + name + " is " + percentageComplete)
     average = sum(averageRewards) / len(averageRewards)
     return average

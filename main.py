@@ -1,7 +1,7 @@
 import os
 import numpy as np
 from typing import Final, TypedDict
-from DoRun import multipleRuns
+from DoRun import multipleRuns, getChooseActionGreedy
 import matplotlib.pyplot as plt
 from concurrent import futures
 
@@ -18,15 +18,19 @@ averageRewardsUpperConfidenceBound: list[float] = []
 with futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as ex:
     def epsilonGreedy(chanceToSelectRandomly):
         return multipleRuns(
-            chanceToSelectRandomly=chanceToSelectRandomly,
-            runs=NUMBER_OF_RUNS
+            lambda: getChooseActionGreedy(chanceToSelectRandomly),
+            NUMBER_OF_RUNS,
+            "Epsilon greedy: " + str(round(chanceToSelectRandomly, 2))
         )
 
     def greedyWithOptimisticInitialization(defaultEstimate):
         return multipleRuns(
-            chanceToSelectRandomly=0.1,
-            runs=NUMBER_OF_RUNS,
-            defaultEstimate=defaultEstimate
+            lambda: getChooseActionGreedy(
+                chanceToSelectRandomly=0.1,
+                defaultEstimate=defaultEstimate
+            ),
+            NUMBER_OF_RUNS,
+            "Default estimate: " + str(round(defaultEstimate))
         )
     averageRewardsEpsilonGreedy = list(ex.map(epsilonGreedy, PARAMETERS))
     averageRewardsGreedyWithOptimisticInitialization = list(ex.map(epsilonGreedy, PARAMETERS))
