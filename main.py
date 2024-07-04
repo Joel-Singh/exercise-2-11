@@ -1,7 +1,7 @@
 import os
 import numpy as np
 from typing import Final, TypedDict
-from DoRun import multipleRuns, getChooseActionGreedy
+from DoRun import multipleRuns, getChooseActionGreedy, getChooseActionGradient
 import matplotlib.pyplot as plt
 from concurrent import futures
 
@@ -32,14 +32,24 @@ with futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as ex:
             NUMBER_OF_RUNS,
             "Optimistic: " + str(round(defaultEstimate, 2))
         )
+
+    def gradient(stepSizeParameter):
+        return multipleRuns(
+            lambda: getChooseActionGradient(stepSizeParameter),
+            NUMBER_OF_RUNS,
+            "Gradient " + str(round(stepSizeParameter, 2))
+        )
+
     averageRewardsEpsilonGreedy = list(ex.map(epsilonGreedy, PARAMETERS))
     averageRewardsGreedyWithOptimisticInitialization = list(ex.map(greedyWithOptimisticInitialization, PARAMETERS))
+    averageRewardsGradient = list(ex.map(gradient, PARAMETERS))
 
 def getResults(listOfFutures: list[futures.Future]):
     return [future.result() for future in listOfFutures]
 
 plt.plot(averageRewardsEpsilonGreedy, 'r')
 plt.plot(averageRewardsGreedyWithOptimisticInitialization, 'k')
+plt.plot(averageRewardsGradient, 'g')
 plt.xticks(np.arange(len(PARAMETERS)), PARAMETERS_AS_STRING)
 
 plt.ylabel("Average reward over the last 100,000 steps")
