@@ -4,25 +4,75 @@ import random
 import numpy as np
 from numpy.lib import math
 
+# Page 31 Second Edition Barto and Sutton
+def calculateNewAverageIncrementally(oldAverage, nextValue, numberOfValues):
+    return oldAverage + (1/numberOfValues) * (nextValue - oldAverage)
+
+def calculateNewAverageWithStepSizeParameter(oldAverage, nextValue, stepSizeParameter):
+    return oldAverage + (stepSizeParameter) * (nextValue - oldAverage)
+
+# Returns reward
+def getChooseActionGreedy(trueValues: list[float], useIncrementalEstimateCalculation: bool = False, chanceToSelectRandomly: float = 0.1, defaultEstimate: float = 0.1) -> Callable[[int], float]:
+    estimates: list[None | float] = [None for _ in range(10)]
+
+    def chooseActionRandomly():
+        return random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    def chooseActionGreedily():
+        def getHighestEstimateActions() -> list[int]:
+            highestEstimate = -999
+            highestEstimateActions = []
+            for i in range(10):
+                estimate = estimates[i] if estimates[i] is not None else defaultEstimate
+                if (estimate > highestEstimate): # type:ignore
+                    highestEstimateActions = []
+                    highestEstimate = estimate
+                    highestEstimateActions.append(i)
+                elif(estimate == highestEstimate):
+                    highestEstimateActions.append(i)
+            return highestEstimateActions
+
+        highestEstimateActions = getHighestEstimateActions()
+        return random.choice(highestEstimateActions)
+
+    def getReward(action: int):
+        return random.normalvariate(trueValues[action], 1)
+
+    STEP_SIZE_PARAMETER: Final = 0.1
+    def updateEstimate(action: int, reward: float, currentStep: int):
+        if (estimates[action] is None):
+            estimates[action] = reward
+        else:
+            if (useIncrementalEstimateCalculation):
+                estimates[action] = calculateNewAverageIncrementally(estimates[action], reward, currentStep + 1)
+            else:
+                estimates[action] = calculateNewAverageWithStepSizeParameter(estimates[action], reward, STEP_SIZE_PARAMETER)
+
+    def chooseAction(currentStep: int) -> float:
+        action: int = 0
+        if (random.random() < chanceToSelectRandomly):
+            action = chooseActionRandomly()
+        else:
+            action = chooseActionGreedily()
+        reward = getReward(action)
+        updateEstimate(action, reward, currentStep)
+        return reward
+
+    return chooseAction
+
 # returns averageRewardOverTheLast100000Steps
 def runGreedy(useIncrementalEstimateCalculation: bool, chanceToSelectRandomly: float, defaultEstimate: float = 0):
     STEP_SIZE_PARAMETER: Final = 0.1
 
     NUMBER_OF_STEPS: Final = 2 * 10**6
 
-    # Page 31 Second Edition Barto and Sutton
-    def calculateNewAverageIncrementally(oldAverage, nextValue, numberOfValues):
-        return oldAverage + (1/numberOfValues) * (nextValue - oldAverage)
 
-    def calculateNewAverageWithStepSizeParameter(oldAverage, nextValue, stepSizeParameter):
-        return oldAverage + (stepSizeParameter) * (nextValue - oldAverage)
-
-    estimates: list[float | None] = [None for _ in range(10)]
     trueValues: list[float] = [random.normalvariate(0, 1) for _ in range(10)]
 
     def getReward(action: int):
         return random.normalvariate(trueValues[action], 1)
 
+    estimates: list[float | None] = [None for _ in range(10)]
     def chooseActionRandomly():
         return random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 
@@ -99,9 +149,6 @@ def runGradient(stepSizeParameter: float):
     NUMBER_OF_STEPS: Final = 2 * 10**6
 
     averageReward: float = 0
-    # Page 31 Second Edition Barto and Sutton
-    def calculateNewAverageIncrementally(oldAverage, nextValue, numberOfValues):
-        return oldAverage + (1/numberOfValues) * (nextValue - oldAverage)
 
     class Lever(TypedDict):
         preference: float
