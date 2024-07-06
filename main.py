@@ -52,9 +52,6 @@ with futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as ex:
     averageRewardsGradient = list(ex.map(gradient, PARAMETERS))
     averageRewardsUpperConfidenceBound = list(ex.map(UCB, PARAMETERS))
 
-def getResults(listOfFutures: list[futures.Future]):
-    return [future.result() for future in listOfFutures]
-
 plt.plot(averageRewardsEpsilonGreedy, 'r')
 plt.plot(averageRewardsGreedyWithOptimisticInitialization, 'k')
 plt.plot(averageRewardsGradient, 'g')
