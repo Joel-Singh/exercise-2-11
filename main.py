@@ -1,7 +1,7 @@
 import os
 import numpy as np
 from typing import Final, TypedDict
-from DoRun import multipleRuns, getChooseActionGreedy, getChooseActionGradient
+from DoRun import getChooseActionUCB, multipleRuns, getChooseActionGreedy, getChooseActionGradient
 import matplotlib.pyplot as plt
 from concurrent import futures
 
@@ -40,9 +40,17 @@ with futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as ex:
             "Gradient " + str(round(stepSizeParameter, 2))
         )
 
+    def UCB(degreeOfExploration):
+        return multipleRuns(
+            lambda: getChooseActionUCB(degreeOfExploration),
+            NUMBER_OF_RUNS,
+            "UCB " + str(round(degreeOfExploration ,2))
+        )
+
     averageRewardsEpsilonGreedy = list(ex.map(epsilonGreedy, PARAMETERS))
     averageRewardsGreedyWithOptimisticInitialization = list(ex.map(greedyWithOptimisticInitialization, PARAMETERS))
     averageRewardsGradient = list(ex.map(gradient, PARAMETERS))
+    averageRewardsUpperConfidenceBound = list(ex.map(UCB, PARAMETERS))
 
 def getResults(listOfFutures: list[futures.Future]):
     return [future.result() for future in listOfFutures]
@@ -50,6 +58,7 @@ def getResults(listOfFutures: list[futures.Future]):
 plt.plot(averageRewardsEpsilonGreedy, 'r')
 plt.plot(averageRewardsGreedyWithOptimisticInitialization, 'k')
 plt.plot(averageRewardsGradient, 'g')
+plt.plot(averageRewardsUpperConfidenceBound, 'b')
 plt.xticks(np.arange(len(PARAMETERS)), PARAMETERS_AS_STRING)
 
 plt.ylabel("Average reward over the last 100,000 steps")
