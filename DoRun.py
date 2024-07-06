@@ -179,7 +179,7 @@ def multipleRuns(chooseActionGetter: Callable[[], ChooseAction], name: str, runs
     for i in range(runs):
         averageReward = run(chooseActionGetter(), numberOfSteps)
         averageRewards.append(averageReward)
-        percentageComplete = str(((i + 1) / runs) * 100) + str("%")
+        percentageComplete = str(round(((i + 1) / runs) * 100, 2)) + str("%")
         print("For " + name + " is " + percentageComplete)
     average = sum(averageRewards) / len(averageRewards)
     return average
