@@ -96,6 +96,46 @@ def getChooseActionGradient(stepSizeParameter: float) -> ChooseAction:
 
     return chooseAction 
 
+def getChooseActionUCB(degreeOfExploration: float) -> ChooseAction:
+    estimates: list[float] = [0 for _ in range(10)]
+    numberOfTimesChosen: list[int] = [0 for _ in range(10)]
+
+    def updateEstimate(action: int, reward: float):
+        estimates[action] = calculateNewAverageIncrementally(estimates[action], reward, numberOfTimesChosen[action])
+
+    def chooseAction(currentStep: int, trueValues: list[float]):
+        def getUCBEquationValue(estimate: float, numberOfTimes: int):
+            # Page 35
+            if (numberOfTimes == 0):
+                return float('inf')
+            return estimate + degreeOfExploration * math.sqrt(math.log(currentStep + 1) / numberOfTimes)
+
+        def getHighestActions():
+            UCBEquationValues = [getUCBEquationValue(estimates[a], numberOfTimesChosen[a]) for a in range(10)]
+            highestActions: list[int] = []
+            highestValue = float('-inf')
+            for a,v in enumerate(UCBEquationValues):
+                if (v < highestValue):
+                    continue
+                elif (v == highestValue):
+                    highestActions.append(a)
+                    continue
+                elif (v > highestValue):
+                    highestValue = v
+                    highestActions.clear()
+                    highestActions.append(a)
+
+            return highestActions
+
+        action: int = random.choice(getHighestActions())
+        numberOfTimesChosen[action] += 1
+
+        reward: float = getReward(action, trueValues)
+        updateEstimate(action, reward)
+        return reward
+
+    return chooseAction
+
 def run(chooseAction: ChooseAction):
     NUMBER_OF_STEPS: Final = 2 * 10**6
 
