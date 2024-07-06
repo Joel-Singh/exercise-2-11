@@ -5,7 +5,7 @@ import numpy as np
 from numpy.lib import math
 
 # Page 31 Second Edition Barto and Sutton
-def calculateNewAverageIncrementally(oldAverage, nextValue, numberOfValues):
+def calculateNewAverageIncrementally(oldAverage: float, nextValue: float, numberOfValues: int):
     return oldAverage + (1/numberOfValues) * (nextValue - oldAverage)
 
 def calculateNewAverageWithStepSizeParameter(oldAverage, nextValue, stepSizeParameter):
