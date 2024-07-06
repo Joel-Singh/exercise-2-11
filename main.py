@@ -9,6 +9,7 @@ PARAMETERS: Final = [1/128, 1/64, 1/32, 1/16, 1/8, 1/4, 1/2, 1, 2, 4]
 PARAMETERS_AS_STRING: Final = ["1/128", "1/64", "1/32", "1/16", "1/8", "1/4", "1/2", "1", "2", "4"]
 
 NUMBER_OF_RUNS: Final = 2000
+NUMBER_OF_STEPS: Final = 2 * 10**6
 
 averageRewardsEpsilonGreedy: list[float] = []
 averageRewardsGradient: list[float] = []
@@ -19,8 +20,9 @@ with futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as ex:
     def epsilonGreedy(chanceToSelectRandomly):
         return multipleRuns(
             lambda: getChooseActionGreedy(chanceToSelectRandomly),
+            "Epsilon greedy: " + str(round(chanceToSelectRandomly, 2)),
             NUMBER_OF_RUNS,
-            "Epsilon greedy: " + str(round(chanceToSelectRandomly, 2))
+            NUMBER_OF_STEPS
         )
 
     def greedyWithOptimisticInitialization(defaultEstimate):
@@ -29,22 +31,25 @@ with futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as ex:
                 chanceToSelectRandomly=0.1,
                 defaultEstimate=defaultEstimate
             ),
+            "Optimistic: " + str(round(defaultEstimate, 2)),
             NUMBER_OF_RUNS,
-            "Optimistic: " + str(round(defaultEstimate, 2))
+            NUMBER_OF_STEPS
         )
 
     def gradient(stepSizeParameter):
         return multipleRuns(
             lambda: getChooseActionGradient(stepSizeParameter),
+            "Gradient " + str(round(stepSizeParameter, 2)),
             NUMBER_OF_RUNS,
-            "Gradient " + str(round(stepSizeParameter, 2))
+            NUMBER_OF_STEPS
         )
 
     def UCB(degreeOfExploration):
         return multipleRuns(
             lambda: getChooseActionUCB(degreeOfExploration),
+            "UCB " + str(round(degreeOfExploration ,2)),
             NUMBER_OF_RUNS,
-            "UCB " + str(round(degreeOfExploration ,2))
+            NUMBER_OF_STEPS
         )
 
     averageRewardsEpsilonGreedy = list(ex.map(epsilonGreedy, PARAMETERS))

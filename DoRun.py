@@ -136,27 +136,25 @@ def getChooseActionUCB(degreeOfExploration: float) -> ChooseAction:
 
     return chooseAction
 
-def run(chooseAction: ChooseAction):
-    NUMBER_OF_STEPS: Final = 2 * 10**6
-
+def run(chooseAction: ChooseAction, numberOfSteps):
     trueValues: list[float] = [random.normalvariate(0, 1) for _ in range(10)]
 
     averageRewardOverTheLast100000Steps: float = 0
 
-    for i in range(NUMBER_OF_STEPS):
+    for i in range(numberOfSteps):
         def updateAverageRewardOverTheLast100000Steps(reward):
             nonlocal averageRewardOverTheLast100000Steps
             # dividing by 2 incase I lower the NUMBER_OF_STEPS for testing
-            if (i < (NUMBER_OF_STEPS / 2)):
+            if (i < (numberOfSteps / 2)):
                 return
 
-            if (i == (NUMBER_OF_STEPS / 2)):
+            if (i == (numberOfSteps / 2)):
                 averageRewardOverTheLast100000Steps = reward
             else:
                 averageRewardOverTheLast100000Steps = calculateNewAverageIncrementally(averageRewardOverTheLast100000Steps, reward, (i - 10**6) + 1)
                 
         currentRandomNumber: int = -1
-        randomWalkNumbers: np.ndarray = np.random.normal(0, 0.01, NUMBER_OF_STEPS * 10)
+        randomWalkNumbers: np.ndarray = np.random.normal(0, 0.01, numberOfSteps * 10)
         def getRandomWalkNumber():
             nonlocal currentRandomNumber
             nonlocal randomWalkNumbers
@@ -176,10 +174,10 @@ def run(chooseAction: ChooseAction):
     return averageRewardOverTheLast100000Steps 
 
 
-def multipleRuns(chooseActionGetter: Callable[[], ChooseAction], runs: int, name: str):
+def multipleRuns(chooseActionGetter: Callable[[], ChooseAction], name: str, runs: int, numberOfSteps: int):
     averageRewards: list[float] = []
     for i in range(runs):
-        averageReward = run(chooseActionGetter())
+        averageReward = run(chooseActionGetter(), numberOfSteps)
         averageRewards.append(averageReward)
         percentageComplete = str(((i + 1) / runs) * 100) + str("%")
         print("For " + name + " is " + percentageComplete)
